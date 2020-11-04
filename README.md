@@ -26,6 +26,7 @@ Code to scan all files in a directory to look for sensitive data according to LG
  
  OBS: The rules can be found in **Searchers.py**
       The script is looking for the following data:
+      
             - cpf
             - rg
             - cep
@@ -33,5 +34,6 @@ Code to scan all files in a directory to look for sensitive data according to LG
             - nome
             - telefone
             - email
-        
+      
+      
   __WIP__
