@@ -4,7 +4,7 @@ Code to scan all files in a directory to look for sensitive data according to LG
 
 # How to use
 
-1.  Clone or download the repository.
+1.  Clone or download the repository in the **master branch** (change it on top left. you are on the main branch now). Clone by clicking on the green buttom on the right!
 2.  Create a virtual environment to install all the necessary packages (see https://docs.python.org/3/library/venv.html)
 3.  Activate you VENV
 4.  Install all packages with:
