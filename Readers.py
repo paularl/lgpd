@@ -1,7 +1,7 @@
 from pdfminer.high_level import extract_text_to_fp
 import textract
 from pptx import Presentation
-
+import PyPDF2
 
 class FileReader():
 
@@ -29,11 +29,11 @@ class FileReader():
 
     def read_pdf(self):
 
-        with open(filename, "rb") as f:
+        with open(self.filename, "rb") as f:
             reader = PyPDF2.PdfFileReader(f)
             page = reader.getPage(0)
             text = page.extractText()
-
+        return text
 
     def read_doc(self):
 
@@ -60,6 +60,8 @@ class FileReader():
             for shape in slide.shapes:
                 if hasattr(shape, "text"):
                     text.append(shape.text)
+
+        return text
 
 
     def read_image(self):
