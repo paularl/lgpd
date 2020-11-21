@@ -1,4 +1,3 @@
-from pdfminer.high_level import extract_text_to_fp
 import textract
 from pptx import Presentation
 import PyPDF2
@@ -54,12 +53,23 @@ class FileReader():
 
 
     def read_ppt(self):
+
+        def extract_shape_txt(shape):
+            if hasattr(shape, "text"):
+                shapetext = shape.text
+                return shapetext
+            else:
+                return ''
+
         prs = Presentation(self.filename)
-        text = []
+        text = ' '
         for slide in prs.slides:
             for shape in slide.shapes:
-                if hasattr(shape, "text"):
-                    text.append(shape.text)
+                if "GroupShape" in shape.__str__():
+                    for innershape in shape.shapes:
+                        text += extract_shape_txt(innershape)
+                else:
+                    text += extract_shape_txt(shape)
 
         return text
 

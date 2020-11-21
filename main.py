@@ -1,24 +1,29 @@
+# coding: utf-8
+
 import os
 from fnmatch import fnmatch
 from Readers import FileReader
 import Searchers
 import csv
 import sys
+import datetime
 
-
-root = sys.argv[1]
+# root = sys.argv[1]
 # print(root)
-root = 'C:/Users/paula.romero.lopes/Documents'
+root = 'C:/'
 # pattern = "*.pdf"
 
 output = []
 
+start = datetime.datetime.now()
+
+f = open("log.txt", "w")
+f.write("starting scan...........{}".format(start))
+f.close()
+
 for path, subdirs, files in os.walk(root):
 
-    print(path)
-
     for name in files:
-        print(name)
 
         try:
             reader = FileReader(os.path.join(path, name))
@@ -29,6 +34,7 @@ for path, subdirs, files in os.walk(root):
             classification_dict = {key: '' for key in Searchers.patterns.keys()}
             classification_dict['path'] = path
             classification_dict['name'] = name
+            classification_dict['extension'] = name.split('.')[-1]
             classification_dict['error'] = 1
             classification_dict['sensitive'] = ''
             classification_dict['error_msg'] = 'Could not read the file.'
@@ -40,12 +46,14 @@ for path, subdirs, files in os.walk(root):
                 classification_dict = Searchers.ClassifyData(patterns_matches, reader.text)
                 classification_dict['path'] = path
                 classification_dict['name'] = name
+                classification_dict['extension'] = reader.extension
                 classification_dict['error'] = 0
                 classification_dict['error_msg'] = ''
             else:
                 classification_dict = {key: '' for key in Searchers.patterns.keys()}
                 classification_dict['path'] = path
                 classification_dict['name'] = name
+                classification_dict['extension'] = reader.extension
                 classification_dict['error'] = 1
                 classification_dict['sensitive'] = ''
                 classification_dict['error_msg'] = 'No text found in file'
@@ -58,10 +66,24 @@ for path, subdirs, files in os.walk(root):
         output.append(output_dict)
 
 
-with open("output.csv", "w", newline='') as outfile:
+with open("output.csv", "w", newline='', encoding="utf-8") as outfile:
 
     keys = output[0].keys()
-    dict_writer = csv.DictWriter(outfile, keys)
-    dict_writer.writeheader()
-    dict_writer.writerows(output)
+    writer = csv.writer(outfile, delimiter=';')
+    writer.writerow(keys)
+    for line in output:
+        try:
+            writer.writerow(list(line.values()))
+        except:
+            pass
+    # dict_writer = csv.DictWriter(outfile, keys)
+    # dict_writer.writeheader()
+    # dict_writer.writerows(output)
+
+end = datetime.datetime.now()
+lag = end-start
+f = open("log.txt", "a")
+f.write('scan ended at {} and took {}'.format(end, lag))
+f.close()
+
 
