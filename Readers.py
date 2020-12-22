@@ -1,6 +1,8 @@
-import textract
+import docx2txt
 from pptx import Presentation
 import PyPDF2
+import xlrd
+from itertools import chain
 
 class FileReader():
 
@@ -14,7 +16,8 @@ class FileReader():
 
     def extractText(self):
 
-        if self.extension == "doc" or self.extension == "docx":
+        text = None
+        if self.extension in ("docx", "doc"):
             text = self.read_doc()
         elif self.extension == "pdf":
             text = self.read_pdf()
@@ -22,7 +25,10 @@ class FileReader():
             text = self.read_text()
         elif self.extension == "ppt" or self.extension == "pptx":
             text = self.read_ppt()
-
+        elif self.extension in ("xlsx", "xls"):
+            text = self.read_excel()
+        else:
+            raise Exception("ERROR: Extension not implemented")
         return text
 
 
@@ -36,20 +42,31 @@ class FileReader():
 
     def read_doc(self):
 
-        text = textract.process(self.filename)
+        text = docx2txt.process(self.filename)
         text = text.rstrip()
 
-        encoding = 'utf-8'
-        return text.decode(encoding)
+        return text
     
     def read_excel(self):
-        pass
 
+        workbook = xlrd.open_workbook(self.filename)
+
+        text_list = []
+        cols_name = []
+        for s in range(workbook.nsheets):
+            ws = workbook.sheet_by_index(s)
+            cols_name.append([str(c).upper() for c in ws.row_values(0)])
+            for row in ws.get_rows():
+                for r in row:
+                    text_list.append(str(r.value))
+            text = ' '.join(text_list)
+
+        return text,  list(chain.from_iterable(cols_name))
 
     def read_text(self):
 
-        f = open(self.filename, "r")
-        return(f.read())
+        f = open(self.filename, "r", encoding="latin-1")
+        return f.read()
 
 
     def read_ppt(self):

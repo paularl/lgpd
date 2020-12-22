@@ -9,8 +9,11 @@ patterns = {'cpf': r"(\b\d{3}\.\d{3}\.\d{3}\-\d{2}\b|\b\d{11}\b)",
             'telefone': r"(\b\d{4,5}-?\d{4}\b)",
             'email': r"/^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$/i"}
 
-def SearchData(text, data_to_search=None):
-    
+def SearchData(text, data_to_search=None, is_excel=False):
+
+    if is_excel is True:
+        text = text[0]
+
     if data_to_search is None:
         list_of_regex = patterns.values()
     else:
@@ -20,7 +23,7 @@ def SearchData(text, data_to_search=None):
 
     return all_matches
 
-def ClassifyData(all_matches, text, data_to_search=None):
+def ClassifyData(all_matches, text, data_to_search=None, is_excel=False):
     
     patterns = {'cpf': r"(\b\d{3}\.\d{3}\.\d{3}\-\d{2}\b|\b\d{11}\b)",
                 'rg': r"(\b\d{1,2}.\d{3}.\d{3}-\d{1}\b|\b\d{8}-\d{1}|\b\d{9}\b)",
@@ -30,15 +33,13 @@ def ClassifyData(all_matches, text, data_to_search=None):
                 'telefone': r"(\b\d{4,5}-?\d{4}\b)",
                 'email': r"/^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$/i"}
 
-    if data_to_search is None:
-        patterns_keys = list(patterns.keys())
-    else:
-        patterns_keys = data_to_search
-    
-    keywords = ['endereço', 'data de nascimento', 'cpf', 'cep', 'rg', 'telefone']
-    
-    list_of_rules = []
-    
+    print(is_excel)
+    if is_excel is True:
+
+        if len(text) > 0:
+            header = text[1]
+            text = text[0]
+
     result = {key:0 for key in patterns.keys()}
     
     if all_matches is not None:
@@ -58,6 +59,11 @@ def ClassifyData(all_matches, text, data_to_search=None):
                         if result[key]<2:
                             result[key] = 2
 
+    if is_excel is True:
+        for p in patterns.keys():
+            if p.upper() in header:
+                result[p] = 2
+
     if any(x == 2 for x in result.values()):
         result["sensitive"] = 2
     elif any(x == 1 for x in result.values()):
@@ -69,6 +75,7 @@ def ClassifyData(all_matches, text, data_to_search=None):
 
 
 def check_validity(span, key, matched_string, text):
+
 
     if key == 'cpf':
         kw = 'cpf'
@@ -229,32 +236,6 @@ def check_nascimento(date):
         return False
 
     return True
-
-
-def check_rg(rg):
-    pass
-
-
-def check_crea(crea):
-    pass
-
-
-def check_cep(cep):
-    pass
-
-
-def check_tel(telefone):
-    pass
-
-
-def check_nome(nome):
-    pass
-
-
-def check_email(email):
-    pass
-
-
 
 
 def format_output(list_of_rules):
