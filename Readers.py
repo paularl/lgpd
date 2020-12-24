@@ -1,7 +1,7 @@
 from pdfminer.high_level import extract_text_to_fp
 import textract
 from pptx import Presentation
-
+from pdf_utils import *
 
 class FileReader():
 
@@ -26,14 +26,9 @@ class FileReader():
 
         return text
 
-
     def read_pdf(self):
 
-        with open(filename, "rb") as f:
-            reader = PyPDF2.PdfFileReader(f)
-            page = reader.getPage(0)
-            text = page.extractText()
-
+        return read_pdf(self.filename)
 
     def read_doc(self):
 
